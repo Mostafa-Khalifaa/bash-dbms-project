@@ -1,9 +1,35 @@
 #!/bin/bash
+create_database(){
+    echo ""
+    echo " Create Database "
+    read -p "Enter Database Name " name
+
+    if [ -z "$name" ]; then
+        echo "Error name is empty"
+        return
+    fi 
+
+    mkdir -p databases # create dir. if doesn't exit
+
+    if [ -d "databases/$name" ]; then
+        echo "Error Database name already exists"
+        return
+    fi 
+
+    mkdir "databases/$name"
+    echo "$name Database is created successfully"
+
+    echo ""
+    read -p "Press Enter to continue"
+}
+
 
 list_databases() {
     echo ""
     echo " List of Databases "
     
+    mkdir -p databases # create dir. if doesn't exit
+
     if [ -z "$(ls -A databases/)" ]; then
         echo "No databases found."
     else
@@ -18,6 +44,11 @@ drop_database() {
     echo "  Drop Database  "
     echo ""
     
+    if [ -z "$(ls -A databases/)" ]; then
+        echo "No databases found."
+        read -p "Press Enter to continue"
+        return
+    fi
     echo "Available databases:"
     ls databases/
     echo ""
@@ -35,9 +66,9 @@ drop_database() {
         read -p "Press Enter to continue"
         return
     fi
+    
     echo "Enter y for yes or n for no"
     rm -ri "databases/$db_name"
-    
     if [ ! -d "databases/$db_name" ]; then
         echo ""
         echo "Database '$db_name' deleted success"
@@ -70,7 +101,7 @@ main_menu() {
         
         case $choice in
             1)
-                # create_database
+                create_database
                 ;;
             2)
                 list_databases
