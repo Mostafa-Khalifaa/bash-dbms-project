@@ -433,6 +433,85 @@ select_from_table() {
     press_enter
 }
 
+delete_from_table() {
+    echo ""
+    echo " Delete From Table "
+    
+    if ! list_tables silent; then
+        press_enter
+        return
+    fi
+    
+    read -p "Enter Table Name: " table_name
+    
+    if ! check_existance "Table" "$table_name"; then
+        press_enter
+        return
+    fi
+    
+    # make sure table has data
+    if [ ! -s "databases/$CURRENT_DB/$table_name.tbl" ]; then
+        echo "Table is empty."
+        press_enter
+        return
+    fi
+    
+    # read columns from meta
+    mapfile -t columns < <(tr '|' '\n' < "databases/$CURRENT_DB/$table_name.meta")
+    
+    # show columns
+    echo ""
+    echo "Columns:"
+    for col in "${columns[@]}"; do
+        name=$(echo "$col" | cut -d':' -f1)
+        echo "  - $name"
+    done
+    echo ""
+    
+    # get column name from user
+    read -p "Enter column name: " col_name
+    
+    # find where this column is
+    position=0
+    col_found=0
+    for i in "${!columns[@]}"; do
+        current=$(echo "${columns[$i]}" | cut -d':' -f1)
+        if [ "$current" == "$col_name" ]; then
+            position=$((i + 1))
+            col_found=1
+            break
+        fi
+    done
+    
+    if [ $col_found -eq 0 ]; then
+        echo "Error: Column not found"
+        press_enter
+        return
+    fi
+    
+    read -p "Enter value to delete: " value
+    
+    # count rows before delete
+    before=$(wc -l < "databases/$CURRENT_DB/$table_name.tbl")
+    
+    # use awk to keep rows that dont match
+    awk -F'|' -v pos="$position" -v val="$value" \
+        '$pos != val' "databases/$CURRENT_DB/$table_name.tbl" > "databases/$CURRENT_DB/$table_name.tbl.tmp"
+    
+    mv "databases/$CURRENT_DB/$table_name.tbl.tmp" "databases/$CURRENT_DB/$table_name.tbl"
+    
+    # count rows after
+    after=$(wc -l < "databases/$CURRENT_DB/$table_name.tbl")
+    deleted=$((before - after))
+    
+    if [ $deleted -eq 0 ]; then
+        echo "No rows deleted"
+    else
+        echo "$deleted row(s) deleted"
+    fi
+    
+    press_enter
+}
 
 
 db_menu() {
@@ -471,7 +550,7 @@ db_menu() {
                 select_from_table
                 ;;
             6)
-                #delete_from_table
+                delete_from_table
                 ;;
             7)
                 #update_tablea
