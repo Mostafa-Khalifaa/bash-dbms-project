@@ -438,6 +438,7 @@ delete_from_table() {
     echo " Delete From Table "
     
     if ! list_tables silent; then
+        echo "No tables found"
         press_enter
         return
     fi
@@ -607,7 +608,7 @@ update_table() {
         return
     fi
     
-    # get new value with validation
+    # get new value
     valid=0
     while [ $valid -eq 0 ]; do
         read -p "Enter new value ($col_type): " new_val
