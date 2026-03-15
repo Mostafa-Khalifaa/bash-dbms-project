@@ -31,7 +31,7 @@ This project is part of the **Open Source Track** at **ITI (Information Technolo
 
 ```bash
 # Clone the repository
-git clone https://github.com/Mostafa-Khalifaa/bash-dbms-project.git
+git clone https://github.com/Mostafa-Khalifaa/bash-dbms.git
 cd bash-dbms
 
 # Make executable
