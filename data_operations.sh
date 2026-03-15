@@ -130,17 +130,14 @@ delete_from_table() {
         return
     fi
     
-    # make sure table has data
     if [ ! -s "databases/$CURRENT_DB/$table_name.tbl" ]; then
         echo "Table is empty."
         press_enter
         return
     fi
     
-    # read columns from meta
     mapfile -t columns < <(tr '|' '\n' < "databases/$CURRENT_DB/$table_name.meta")
     
-    # show columns
     echo ""
     echo "Columns:"
     for col in "${columns[@]}"; do
@@ -228,7 +225,6 @@ update_table() {
         return
     fi
     
-    # search for row
     row=$(awk -F'|' -v id="$pk_value" '$1 == id' "databases/$CURRENT_DB/$table_name.tbl")
     
     if [ -z "$row" ]; then
@@ -237,7 +233,6 @@ update_table() {
         return
     fi
     
-    # show current row
     echo ""
     echo "Current row:"
     echo "─────────────────────"
@@ -288,7 +283,6 @@ update_table() {
         return
     fi
     
-    # get new value
     valid=0
     while [ $valid -eq 0 ]; do
         read -p "Enter new value ($col_type): " new_val
